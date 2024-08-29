@@ -1,25 +1,23 @@
 class Microcontroller:
     def __init__(self, id, network):
-        self.memory = [0] * 256  # Simple memory with 256 bytes
-        self.registers = [0] * 4  # Four general-purpose registers
+        self.memory = [0] * 256  
+        self.registers = [0] * 4  
         self.stack = []
-        self.id = id  # Unique ID for each microcontroller
-        self.network = network  # Reference to the network
+        self.id = id  
+        self.network = network  
 
     def send_message(self, destination_id, message):
         self.network.send(self.id, destination_id, message)
 
     def receive_message(self, source_id, message):
         print(f"MCU {self.id} received from {source_id}: {message}")
-        # Process the message as needed
-
+       
     def load_program(self, program):
-        # Load a program into memory starting at address 0
         for i in range(len(program)):
             self.memory[i] = program[i]
 
     def run(self):
-        pc = 0  # Program Counter
+        pc = 0  
         while pc < len(self.memory):
             instruction = self.memory[pc]
             pc = self.execute(instruction, pc)
@@ -27,34 +25,34 @@ class Microcontroller:
     def execute(self, instruction, pc):
         opcode = instruction >> 4
         operand = instruction & 0x0F
-        if opcode == 1:  # Increment register 0
+        if opcode == 1:  
             self.registers[0] += 1
-        elif opcode == 2:  # Print register 0
+        elif opcode == 2: 
             print(self.registers[0])
-        elif opcode == 3:  # Add register 1 to register 0
+        elif opcode == 3: 
             self.registers[0] += self.registers[1]
-        elif opcode == 4:  # Set register 1 to a value
+        elif opcode == 4:  
             self.registers[1] = self.memory[pc + 1]
-            return pc + 2  # Skip the next memory location (the value)
-        elif opcode == 5:  # Conditional jump if register 0 is zero
+            return pc + 2  
+        elif opcode == 5:  
             if self.registers[0] == 0:
                 return operand
-        elif opcode == 6:  # Load value into register 0 from memory
+        elif opcode == 6: 
             self.registers[0] = self.memory[operand]
-        elif opcode == 7:  # Subtract register 1 from register 0
+        elif opcode == 7:  
             self.registers[0] -= self.registers[1]
-        elif opcode == 8:  # Call subroutine
+        elif opcode == 8: 
             self.stack.append(pc + 2)
             return operand
-        elif opcode == 9:  # Return from subroutine
+        elif opcode == 9:  
             return self.stack.pop()
-        elif opcode == 0xA:  # Push register 0 onto the stack
+        elif opcode == 0xA:  
             self.stack.append(self.registers[0])
-        elif opcode == 0xB:  # Pop the top of the stack into register 0
+        elif opcode == 0xB: 
             self.registers[0] = self.stack.pop()
-        elif opcode == 0xC:  # Simulate reading from a sensor
+        elif opcode == 0xC:  
             self.registers[0] = self.read_sensor()
-        return pc + 1  # Default to moving to the next instruction
+        return pc + 1  
 
 
 class Network:
@@ -85,18 +83,14 @@ if __name__ == "__main__":
     network.add_microcontroller(mcu1)
     network.add_microcontroller(mcu2)
 
-    # Example program for MCU 1: Increment, set register 1, add, print
     program1 = [1, 1, 4, 10, 3, 2]
     mcu1.load_program(program1)
     mcu1.run()
 
-    # Check registers after execution
     print(f"MCU 1 Registers: {mcu1.registers}")
 
-    # Example of MCU 1 sending a message to MCU 2
     mcu1.send_message(2, "Hello from MCU 1")
 
-    # Run MCU 2 to process the message
     mcu2.run()
     print(f"MCU 2 Registers: {mcu2.registers}")
 
